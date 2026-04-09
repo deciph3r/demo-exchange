@@ -28,7 +28,11 @@ public class OrderController {
 
     @GetMapping("/getPortfolio")
     public ResponseEntity<Portfolio> getPortfolio(@AuthenticationPrincipal User user) {
-
         return ResponseEntity.ok().body(portfolioService.getPortfolio(user.getUsername()));
+    }
+
+    @PostMapping("/addToPortfolio")
+    public ResponseEntity<Portfolio> addToPortfolio(@RequestBody OrderRequest orderRequest) {
+            return ResponseEntity.ok().body(portfolioService.addToPortfolio(orderRequest));
     }
 }

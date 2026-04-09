@@ -1,16 +1,24 @@
 package com.ahamed.demoexchange.repository;
 
+import com.ahamed.demoexchange.model.OrderRequest;
 import com.ahamed.demoexchange.model.Portfolio;
+import com.ahamed.demoexchange.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 @Repository
 @AllArgsConstructor
 public class PortfolioRepository {
     final JdbcTemplate jdbcTemplate;
+    final SymbolRepository symbolRepository;
 
     public Portfolio getUsersPortfolio(String userName) {
         Portfolio portfolio = new Portfolio();
@@ -35,5 +43,23 @@ public class PortfolioRepository {
 
     public Integer getUserHolding(String userName, String symbol) {
         return jdbcTemplate.queryForObject("SELECT quantity FROM portfolio WHERE user_id = (SELECT id from users where username = ? ) AND symbol_id = (SELECT id from symbols where symbol= ?)", Integer.class, userName, symbol);
+    }
+
+
+    public void addPortfolio(OrderRequest orderRequest) {
+        long stockId = symbolRepository.getStockId(orderRequest.getStock());
+        long userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        jdbcTemplate.update("""
+                    MERGE INTO portfolio (user_id, symbol_id, quantity, last_updated)
+                    KEY(user_id, symbol_id)
+                    VALUES (
+                        ?,
+                        ?,
+                        COALESCE(
+                            (SELECT quantity FROM portfolio WHERE user_id = ? AND symbol_id = ?), 0
+                        ) + ?,
+                        EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)
+                    )
+                """, userId, stockId, userId, stockId, orderRequest.getQuantity());
     }
 }

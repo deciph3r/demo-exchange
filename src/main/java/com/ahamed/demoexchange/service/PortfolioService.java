@@ -1,8 +1,11 @@
 package com.ahamed.demoexchange.service;
 
+import com.ahamed.demoexchange.model.OrderRequest;
 import com.ahamed.demoexchange.model.Portfolio;
+import com.ahamed.demoexchange.model.User;
 import com.ahamed.demoexchange.repository.PortfolioRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -24,5 +27,10 @@ public class PortfolioService {
         portfolio.setSectorHoldings(sectorMap);
         return portfolio;
     }
+    public Portfolio addToPortfolio(OrderRequest orderRequest) {
+       portfolioRepository.addPortfolio(orderRequest);
+
+        return getPortfolio(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+     }
 
 }
