@@ -27,10 +27,7 @@ public class OrderService {
         orderRequest.setCreatedAt(now);
         orderRequest.setState(OrderRequest.State.PENDING);
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!orderRequest.getTraderId().equals(userName)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized to place this order");
-        }
-
+        orderRequest.setTraderId(userName);
         if (orderRequest.getSide().equals(OrderRequest.Side.SELL) && orderRequest.getQuantity() > portfolioRepository.getUserHolding(userName, orderRequest.getStock())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User does not have enough holdings to place this sell order");
         }
