@@ -24,7 +24,7 @@ A simple stock exchange simulation built using Spring Boot. It supports placing 
 ### Steps
 
 ```bash
-git clone <your-repo-url>
+git clone git@github.com:deciph3r/demo-exchange.git
 cd demo-exchange
 mvn clean install
 mvn spring-boot:run
