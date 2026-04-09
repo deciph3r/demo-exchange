@@ -4,6 +4,7 @@ import com.ahamed.demoexchange.model.User;
 import com.ahamed.demoexchange.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,12 +22,11 @@ public class CustomUserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("Loading user by username: {}", username);
-        User user = userRepository.findByUsername(username);
+        UserDetails user = userRepository.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
-        return org.springframework.security.core.userdetails.User.withUsername(user.getUsername())
-                .password(user.getPassword()).roles("USER").build();
+        return user;
     }
 }
 

@@ -8,7 +8,6 @@ import java.time.Instant;
 public class OrderRequest {
     String traderId;
     String stock;
-    String sector;
     int quantity;
     double takeProfit;
     double stopLoss;

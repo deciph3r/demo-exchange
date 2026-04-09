@@ -11,41 +11,53 @@ MERGE INTO users (username, password) KEY(username)
     ('balanced_user', 'password'),
     ('mixed_user', 'password');
 
+
+CREATE TABLE IF NOT EXISTS symbols (
+                                       id BIGINT PRIMARY KEY,
+                                       symbol VARCHAR(8) NOT NULL UNIQUE,
+    name VARCHAR(255),
+    sector VARCHAR(50) NOT NULL,
+    CONSTRAINT chk_sector CHECK (sector IN ('TECH', 'FINANCE', 'ENERGY', 'HEALTH'))
+    );
+
+-- TECH
+INSERT INTO symbols (id, symbol, name, sector) VALUES (1, 'AAPL', 'Apple Inc.', 'TECH');
+INSERT INTO symbols (id, symbol, name, sector) VALUES (2, 'TSLA', 'Tesla Inc.', 'TECH');
+INSERT INTO symbols (id, symbol, name, sector) VALUES (3, 'MSFT', 'Microsoft Corporation', 'TECH');
+INSERT INTO symbols (id, symbol, name, sector) VALUES (4, 'GOOGL', 'Alphabet Inc.', 'TECH');
+INSERT INTO symbols (id, symbol, name, sector) VALUES (5, 'NVDA', 'NVIDIA Corporation', 'TECH');
+
+-- FINANCE
+INSERT INTO symbols (id, symbol, name, sector) VALUES (6, 'JPM', 'JPMorgan Chase & Co.', 'FINANCE');
+INSERT INTO symbols (id, symbol, name, sector) VALUES (7, 'GS', 'Goldman Sachs Group Inc.', 'FINANCE');
+INSERT INTO symbols (id, symbol, name, sector) VALUES (8, 'BAC', 'Bank of America Corporation', 'FINANCE');
+INSERT INTO symbols (id, symbol, name, sector) VALUES (9, 'MS', 'Morgan Stanley', 'FINANCE');
+INSERT INTO symbols (id, symbol, name, sector) VALUES (10, 'WFC', 'Wells Fargo & Company', 'FINANCE');
+
+-- ENERGY
+INSERT INTO symbols (id, symbol, name, sector) VALUES (11, 'XOM', 'Exxon Mobil Corporation', 'ENERGY');
+
+-- HEALTH
+INSERT INTO symbols (id, symbol, name, sector) VALUES (12, 'JNJ', 'Johnson & Johnson', 'HEALTH');
+
 CREATE TABLE IF NOT EXISTS orders (
                                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                      trader_id VARCHAR(50),
-    stock VARCHAR(255),
-    sector VARCHAR(255),
+                                      trader_id BIGINT,
+    stock_id BIGINT,
     quantity INT,
     take_profit DOUBLE,
     stop_loss DOUBLE,
     side VARCHAR(10),
     state VARCHAR(10),
     created_at BIGINT,
-    expires_at BIGINT
-    );
-
-CREATE TABLE IF NOT EXISTS symbols (
-                                       id BIGINT PRIMARY KEY,
-                                       symbol VARCHAR(8) NOT NULL UNIQUE,
-    name VARCHAR(255)
+    expires_at BIGINT,
+    CONSTRAINT fk_order_user FOREIGN KEY (trader_id) REFERENCES users(id),
+    CONSTRAINT fk_order_stock FOREIGN KEY (stock_id) REFERENCES symbols(id)
     );
 
 
-INSERT INTO symbols (id, symbol, name) VALUES (1, 'AAPL', 'Apple Inc.');
-INSERT INTO symbols (id, symbol, name) VALUES (2, 'TSLA', 'Tesla Inc.');
-INSERT INTO symbols (id, symbol, name) VALUES (3, 'MSFT', 'Microsoft Corporation');
-INSERT INTO symbols (id, symbol, name) VALUES (4, 'GOOGL', 'Alphabet Inc.');
-INSERT INTO symbols (id, symbol, name) VALUES (5, 'NVDA', 'NVIDIA Corporation');
 
-INSERT INTO symbols (id, symbol, name) VALUES (6, 'JPM', 'JPMorgan Chase & Co.');
-INSERT INTO symbols (id, symbol, name) VALUES (7, 'GS', 'Goldman Sachs Group Inc.');
-INSERT INTO symbols (id, symbol, name) VALUES (8, 'BAC', 'Bank of America Corporation');
-INSERT INTO symbols (id, symbol, name) VALUES (9, 'MS', 'Morgan Stanley');
-INSERT INTO symbols (id, symbol, name) VALUES (10, 'WFC', 'Wells Fargo & Company');
 
-INSERT INTO symbols (id, symbol, name) VALUES (11, 'XOM', 'Exxon Mobil Corporation');
-INSERT INTO symbols (id, symbol, name) VALUES (12, 'JNJ', 'Johnson & Johnson');
 
 CREATE TABLE IF NOT EXISTS portfolio (
                                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -84,3 +96,33 @@ INSERT INTO portfolio (user_id, symbol_id, quantity) VALUES (4, 2, 70); -- TSLA
 
 INSERT INTO portfolio (user_id, symbol_id, quantity) VALUES (5, 1, 30); -- AAPL
 INSERT INTO portfolio (user_id, symbol_id, quantity) VALUES (5, 2, 30); -- TSLA
+
+
+
+-- abdullah (user_id = 1)
+INSERT INTO orders (trader_id, stock_id, quantity, take_profit, stop_loss, side, state, created_at, expires_at)
+VALUES
+    (1, 1, 20, 200, 150, 'BUY', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600), -- AAPL
+    (1, 2, 10, 300, 200, 'SELL', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600), -- TSLA
+    (1, 5, 15, 800, 600, 'BUY', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600); -- NVDA
+-- tech_user (user_id = 2)
+INSERT INTO orders (trader_id, stock_id, quantity, take_profit, stop_loss, side, state, created_at, expires_at)
+VALUES
+    (2, 3, 25, 400, 300, 'BUY', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+7200), -- MSFT
+    (2, 4, 10, 180, 120, 'SELL', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+7200), -- GOOGL
+    (2, 1, 5, 210, 160, 'SELL', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+7200); -- AAPL
+-- finance_user (user_id = 3)
+INSERT INTO orders (trader_id, stock_id, quantity, take_profit, stop_loss, side, state, created_at, expires_at)
+VALUES
+    (3, 6, 20, 180, 120, 'BUY', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600), -- JPM
+    (3, 7, 15, 350, 250, 'SELL', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600); -- GS
+-- balanced_user (user_id = 4)
+INSERT INTO orders (trader_id, stock_id, quantity, take_profit, stop_loss, side, state, created_at, expires_at)
+VALUES
+    (4, 11, 10, 120, 90, 'BUY', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600), -- XOM
+    (4, 12, 5, 200, 140, 'SELL', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600); -- JNJ
+-- mixed_user (user_id = 5)
+INSERT INTO orders (trader_id, stock_id, quantity, take_profit, stop_loss, side, state, created_at, expires_at)
+VALUES
+    (5, 1, 10, 210, 150, 'BUY', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600), -- AAPL
+    (5, 2, 5, 320, 220, 'SELL', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600); -- TSLA
