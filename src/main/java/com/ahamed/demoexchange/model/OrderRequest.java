@@ -6,11 +6,11 @@ import java.time.Instant;
 
 @Data
 public class OrderRequest {
+    long id;
     String traderId;
     String stock;
     int quantity;
-    double takeProfit;
-    double stopLoss;
+    double price;
     Side side;
     State state;
     Instant createdAt;
