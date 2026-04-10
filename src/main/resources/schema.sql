@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS orders (
     state VARCHAR(10),
     created_at BIGINT,
     expires_at BIGINT,
+    remarks VARCHAR(255),
     CONSTRAINT fk_order_user FOREIGN KEY (trader_id) REFERENCES users(id),
     CONSTRAINT fk_order_stock FOREIGN KEY (stock_id) REFERENCES symbols(id)
     );
@@ -102,7 +103,7 @@ INSERT INTO portfolio (user_id, symbol_id, quantity) VALUES (5, 2, 30); -- TSLA
 INSERT INTO orders (trader_id, stock_id, quantity, price, side, state, created_at, expires_at)
 VALUES
     (1, 1, 20, 200,  'BUY', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600), -- AAPL
-    (1, 2, 10, 300,  'SELL', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600), -- TSLA
+    (1, 2, 10, 300,  'SELL', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+10), -- TSLA
     (1, 5, 15, 800,  'BUY', 'PENDING', EXTRACT(EPOCH FROM CURRENT_TIMESTAMP), EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)+3600); -- NVDA
 -- tech_user (user_id = 2)
 INSERT INTO orders (trader_id, stock_id, quantity, price, side, state, created_at, expires_at)

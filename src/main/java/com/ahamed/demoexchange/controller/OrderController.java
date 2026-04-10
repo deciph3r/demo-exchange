@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
     final OrderService orderService;
     final PortfolioService portfolioService;
+
     @PostMapping("/placeOrder")
     public long placeOrder(@RequestBody OrderRequest orderRequest) {
         return orderService.placeOrder(orderRequest);

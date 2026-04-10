@@ -4,6 +4,7 @@ import com.ahamed.demoexchange.model.OrderRequest;
 import com.ahamed.demoexchange.model.Portfolio;
 import com.ahamed.demoexchange.model.User;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -14,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
+@Slf4j
 @Repository
 @AllArgsConstructor
 public class PortfolioRepository {
@@ -47,7 +49,9 @@ public class PortfolioRepository {
 
 
     public void addPortfolio(OrderRequest orderRequest) {
+        log.info("Adding portfolio {}", orderRequest);
         long stockId = symbolRepository.getStockId(orderRequest.getStock());
+
         long userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         jdbcTemplate.update("""
                     MERGE INTO portfolio (user_id, symbol_id, quantity, last_updated)

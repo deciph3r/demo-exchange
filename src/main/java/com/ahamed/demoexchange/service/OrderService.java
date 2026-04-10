@@ -4,6 +4,7 @@ import com.ahamed.demoexchange.model.OrderRequest;
 import com.ahamed.demoexchange.repository.OrderRepository;
 import com.ahamed.demoexchange.repository.PortfolioRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.Objects;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class OrderService {
     final OrderRepository orderRepository;
     final PortfolioRepository portfolioRepository;
@@ -42,7 +44,9 @@ public class OrderService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User does not have enough holdings to place this sell order considering the pending sell orders");
         }
         OrderRequest currentOrder = orderRepository.placeOrder(orderRequest);
+        log.info("Order placed successfully :{}", currentOrder);
         OrderRequest orderToTrade = getOrderToTrade(orderRequest);
+        log.info("Found trade successfully :{}", orderToTrade);
         trade(currentOrder, orderToTrade);
         return currentOrder.getId();
     }
@@ -68,14 +72,16 @@ public class OrderService {
             return;
         }
         double executionPrice = getExecutionPrice(o1, o2);
+        log.info("Execution price is {}", executionPrice);
 
         OrderRequest buy  = o1.getSide() == OrderRequest.Side.BUY ? o1 : o2;
         OrderRequest sell = o1.getSide() == OrderRequest.Side.SELL ? o1 : o2;
 
         int tradedQty = Math.min(buy.getQuantity(), sell.getQuantity());
+        log.info("Trading Qty is {}", tradedQty);
 
-        orderRepository.updateOrderState(buy.getId(), OrderRequest.State.FILLED);
-        orderRepository.updateOrderState(sell.getId(), OrderRequest.State.FILLED);
+        orderRepository.updateOrderState(buy.getId(), OrderRequest.State.FILLED, String.format("Bought %d from %s for %f",tradedQty,sell.getTraderId(),executionPrice));
+        orderRepository.updateOrderState(sell.getId(), OrderRequest.State.FILLED, String.format("Sold %d to %s for %f",tradedQty,buy.getTraderId(),executionPrice));
         sell.setQuantity(-tradedQty);
         sell.setPrice(executionPrice);
         portfolioRepository.addPortfolio(buy);
@@ -107,6 +113,7 @@ public class OrderService {
 
 
     public String cancelOrder(long id) {
+        log.info("Canceling order {}", id);
         OrderRequest order = orderRepository.getOrderById(id);
         if(!order.getState().equals(OrderRequest.State.PENDING)){
             return "ORDER CANNOT BE CANCELLED AS IT IS NOT IN PENDING STATE";
@@ -115,7 +122,8 @@ public class OrderService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authorized to cancel order");
         }
 
-        orderRepository.updateOrderState(id, OrderRequest.State.CANCELLED);
+        orderRepository.updateOrderState(id, OrderRequest.State.CANCELLED, "USER REQUESTED CANCELLATION");
+        log.info("Order {} has been cancelled", order);
         return "ORDER CANCELLED SUCCESSFULLY";
     }
 }
