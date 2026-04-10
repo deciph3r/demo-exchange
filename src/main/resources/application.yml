@@ -7,9 +7,15 @@ spring:
   threads:
     virtual:
       enabled: true
-
   sql:
     init:
       mode: always
   datasource:
     url: jdbc:h2:mem:testdb
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      idle-timeout: 300000        # 5 min
+      max-lifetime: 1800000       # 30 min
+      connection-timeout: 30000   # 30 sec
+      leak-detection-threshold: 2000
