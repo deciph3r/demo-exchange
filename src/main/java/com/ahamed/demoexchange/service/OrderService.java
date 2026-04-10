@@ -94,6 +94,8 @@ public class OrderService {
 
         return orderRepository.getAllPendingOrders().stream()
 
+                .filter(o -> o.getStock().equals(orderRequest.getStock()))
+
                 .filter(o -> !o.getTraderId().equals(orderRequest.getTraderId()))
 
                 .filter(o -> isMatchingSide(orderRequest, o))
