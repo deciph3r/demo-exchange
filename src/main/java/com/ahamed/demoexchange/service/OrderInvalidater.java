@@ -3,6 +3,7 @@ package com.ahamed.demoexchange.service;
 import com.ahamed.demoexchange.model.OrderRequest;
 import com.ahamed.demoexchange.repository.OrderRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.time.Instant;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class OrderInvalidater implements SchedulingConfigurer {
     final OrderRepository orderRepository;
     @Override
@@ -21,6 +23,7 @@ public class OrderInvalidater implements SchedulingConfigurer {
     }
 
     private void invalidateExpiredOrders() {
+        log.info("invalidateExpiredOrders");
         orderRepository.getAllPendingOrders().stream()
                 .filter(order -> order.getExpiresAt().isBefore(Instant.now()))
                 .forEach(this::invalidateOrder);
@@ -28,6 +31,7 @@ public class OrderInvalidater implements SchedulingConfigurer {
 
     @Transactional
     private void invalidateOrder(OrderRequest order) {
+        log.info("invalidating order {}", order);
         orderRepository.getOrderById(order.getId());
         orderRepository.updateOrderState(order.getId(), OrderRequest.State.CANCELLED, "ORDER EXPIRED");
     }
