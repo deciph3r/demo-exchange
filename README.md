@@ -221,6 +221,54 @@ curl -X POST http://localhost:8080/addToPortfolio \
 
 ---
 
+
+---
+
+### 5. Get Sector Overlap
+
+**Endpoint**
+
+```
+GET /sectorOverla
+```
+
+**Description**
+
+* Directly updates portfolio without trade
+* Primarily for testing
+
+**Sample Curl**
+
+```bash
+curl -X GET http://localhost:8080/sectorOverlap \
+  -u abdullah:password
+```
+
+**Response**
+
+```json
+{
+  "overlaps": [
+    {
+      "basket": "BALANCED",
+      "overlap": "40.00%"
+    },
+    {
+      "basket": "FINANCE_HEAVY",
+      "overlap": "0.00%"
+    },
+    {
+      "basket": "TECH_HEAVY",
+      "overlap": "100.00%"
+    }
+  ],
+  "dominantBasket": "TECH_HEAVY",
+  "riskFlag": "HIGH"
+}
+```
+
+---
+
 ## Order Matching Logic
 
 * Matches BUY ↔ SELL

@@ -2,6 +2,7 @@ package com.ahamed.demoexchange.controller;
 
 import com.ahamed.demoexchange.model.OrderRequest;
 import com.ahamed.demoexchange.model.Portfolio;
+import com.ahamed.demoexchange.model.SectorOverlapResponse;
 import com.ahamed.demoexchange.model.User;
 import com.ahamed.demoexchange.service.OrderService;
 import com.ahamed.demoexchange.service.PortfolioService;
@@ -35,5 +36,14 @@ public class OrderController {
     @PostMapping("/addToPortfolio")
     public ResponseEntity<Portfolio> addToPortfolio(@RequestBody OrderRequest orderRequest) {
             return ResponseEntity.ok().body(portfolioService.addToPortfolio(orderRequest));
+    }
+
+    @GetMapping("/sectorOverlap")
+    public ResponseEntity<SectorOverlapResponse> getSectorOverlap(
+            @AuthenticationPrincipal User user) {
+
+        return ResponseEntity.ok(
+                portfolioService.getSectorOverlap(user.getUsername())
+        );
     }
 }
