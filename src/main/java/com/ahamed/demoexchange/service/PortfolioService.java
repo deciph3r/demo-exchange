@@ -35,7 +35,9 @@ public class PortfolioService {
         return portfolio;
     }
     public Portfolio addToPortfolio(OrderRequest orderRequest) {
-       portfolioRepository.addPortfolio(orderRequest);
+        String traderId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        orderRequest.setTraderId(traderId);
+        portfolioRepository.addPortfolio(orderRequest);
 
         return getPortfolio(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
      }

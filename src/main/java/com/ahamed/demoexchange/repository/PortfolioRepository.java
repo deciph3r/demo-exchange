@@ -2,11 +2,9 @@ package com.ahamed.demoexchange.repository;
 
 import com.ahamed.demoexchange.model.OrderRequest;
 import com.ahamed.demoexchange.model.Portfolio;
-import com.ahamed.demoexchange.model.User;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,7 +15,7 @@ import java.util.List;
 public class PortfolioRepository {
     final JdbcTemplate jdbcTemplate;
     final SymbolRepository symbolRepository;
-
+    final UserRepository userRepository;
     public Portfolio getUsersPortfolio(String userName) {
         Portfolio portfolio = new Portfolio();
         portfolio.setUserName(userName);
@@ -48,7 +46,7 @@ public class PortfolioRepository {
         log.info("Adding portfolio {}", orderRequest);
         long stockId = symbolRepository.getStockId(orderRequest.getStock());
 
-        long userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        long userId = userRepository.getUserId(orderRequest.getTraderId());
         jdbcTemplate.update("""
                     MERGE INTO portfolio (user_id, symbol_id, quantity, last_updated)
                     KEY(user_id, symbol_id)

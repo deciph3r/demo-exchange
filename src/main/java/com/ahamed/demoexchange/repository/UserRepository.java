@@ -23,4 +23,8 @@ public class UserRepository {
         }, username);
 
     }
+
+    public long getUserId(String username) {
+        return jdbcTemplate.queryForObject("SELECT id FROM users WHERE username = ?", Long.class, username);
+    }
 }

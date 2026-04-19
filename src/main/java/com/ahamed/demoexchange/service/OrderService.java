@@ -84,6 +84,8 @@ public class OrderService {
         orderRepository.updateOrderState(sell.getId(), OrderRequest.State.FILLED, String.format("Sold %d to %s for %f",tradedQty,buy.getTraderId(),executionPrice));
         sell.setQuantity(-tradedQty);
         sell.setPrice(executionPrice);
+        buy.setQuantity(tradedQty);
+        buy.setPrice(executionPrice);
         portfolioRepository.addPortfolio(buy);
 
         portfolioRepository.addPortfolio(
